@@ -1,0 +1,55 @@
+
+/* 1. Paquetes e importaciones*/
+package compilador; //paquete en el que esta el archvo cup
+import java_cup.runtime.*; /*por que necesita corre casi por debajo*/
+
+/* 2. Código de usuario*/
+parser code{:
+	public void report_error(String message, Object info) { //Metodo para reportar un error encontrado
+                                                            //y recibe como parametro el mensaje y  
+                                                            //el numero de token encontrado Ej. #4
+                char a=info.toString().charAt(1); //convierte el info encontrado en string y toma unicamente 
+                                                  //el segundo caracter para poder ir comparando 
+                String msj=" ";
+                switch (a){ //obtiene el valor y va comparando para capturar y presentar que tipo de error es.
+                    case '2':{ msj= "La Consonante  en esa posicion es invalida";break;}
+                    case '3':{ msj= "La Vocal  en esa posicion es invalida"; break;}
+                    case '4':{ msj= "El operador  + solo va en medio de una vocal y una consonante";break;}
+                    case '5':{ msj= "El operador  . solo va en medio de una vocal y una consonante";break;}
+                    case '6':{ msj= "Fin de sentencia antes de terminar "; break;}
+                    default:{ msj="No existe ese caracter";break;}}
+                System.out.println(msj); //Presenta el tipo de error encontrado en caso de haber
+}
+	public void report_fatal_error(String message, Object info) {/* Cuando se encuentra un error de donde el sistema no puede 
+                                                                recuperarse, se lanza un error fatal. Se despliega el mensaje
+                                                                de error y se finaliza la ejecucion. */
+        report_error(message, info);
+        System.exit(1);
+	}
+:};
+/* 3. Lista de simbolos gramática terminales y no terminales*/
+//Se escribe todos los token teclarados en el archivo .flex en la ultima seccion
+terminal Consonante, Vocal, OperadorS, OperadorP, FinSentencia; 
+//Son aquellos que se utilizan para obtener un valor de los terminales
+non terminal expr;
+
+/* 4. Declaraciones de precedencias*/
+
+/* 5. Especificaciones*/
+//Reglas semanticas o de producción
+//verifica que los datos esten ingresados en este orden
+                                                
+expr ::= Consonante:c OperadorS Vocal:v FinSentencia  //Ejemplo L+a; si se ingresa en ese orden
+		{: System.out.println( "La silaba formada es: "+c+v);:}   //Dara como resultado La
+
+		|Vocal:v OperadorS Consonante:c FinSentencia //Ejemplo e+R; si se ingresa en ese orden
+		{: System.out.println( "La silaba formada es: "+c+v);:}  //Dara como resultado Re
+
+		|Consonante:c OperadorP Vocal:v FinSentencia //Ejemplo T.a;si se ingresa en ese orden
+		{: System.out.println( "La silaba formada es: "+c+v);:}  //Dara como resultado Ta
+
+		|Vocal:v OperadorP Consonante:c FinSentencia //Ejemplo i.F;si se ingresa en ese orden
+		{: System.out.println( "La silaba formada es: "+c+v);:};  //Dara como resultado Fi
+
+//En caso de que la expresión no sea ingresada de ninguna de las maneras especificadas anteriormente 
+//arrojará un error por tanto llamaria al metodo report_fatal_error y reportara el error
